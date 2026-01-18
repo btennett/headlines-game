@@ -257,10 +257,6 @@
                 <div class="score-label">Score</div>
                 <div class="score-value" id="score">0</div>
             </div>
-            <div class="score-item">
-                <div class="score-label">Streak</div>
-                <div class="score-value" id="streak">0</div>
-            </div>
         </div>
 
         <div class="game-area">
@@ -288,7 +284,6 @@
     <script>
         let currentRound = 1;
         let score = 0;
-        let streak = 0;
         let currentHeadline = null;
         let hasVoted = false;
 
@@ -348,6 +343,20 @@
                 answer: "real",
                 explanation: "There were reports in 2024 of OpenAI restricting API access to companies suspected of using it to train competing models, sparking debates about fair use.",
                 searchQuery: "OpenAI bans competitor API training 2024"
+            },
+            {
+                text: "NASA Announces Discovery of Liquid Water Lakes Beneath Mars' South Pole Using Enhanced Radar Technology",
+                category: "Science",
+                answer: "real",
+                explanation: "Scientists confirmed the presence of liquid water beneath Mars' southern ice cap in 2020, with additional confirmations using improved radar analysis in subsequent years.",
+                searchQuery: "NASA liquid water Mars south pole radar"
+            },
+            {
+                text: "Amazon Launches 'Prime Air Pods' - Delivery Drones That Double as Wireless Earbuds While Charging at Home",
+                category: "Tech",
+                answer: "fake",
+                explanation: "This is completely made up. While Amazon has drone delivery programs and makes various tech products, delivery drones that turn into earbuds is pure fiction.",
+                searchQuery: "Amazon Prime Air Pods delivery drone earbuds"
             }
         ];
 
@@ -390,15 +399,9 @@
 
             if (isCorrect) {
                 score += 10;
-                streak++;
                 resultArea.classList.add('correct');
                 resultTitle.textContent = '🎉 Correct!';
-                if (streak >= 3) {
-                    score += 5;
-                    resultTitle.textContent += ' +5 Streak Bonus!';
-                }
             } else {
-                streak = 0;
                 resultArea.classList.add('incorrect');
                 resultTitle.textContent = '❌ Wrong!';
             }
@@ -406,7 +409,6 @@
             resultExplanation.textContent = currentHeadline.explanation;
 
             document.getElementById('score').textContent = score;
-            document.getElementById('streak').textContent = streak;
 
             // Show sources section with search suggestion
             const sourcesDiv = document.getElementById('sources');
