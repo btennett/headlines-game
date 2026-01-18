@@ -15,42 +15,44 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            padding-bottom: 80px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .container {
             max-width: 800px;
             width: 100%;
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
+            margin-top: 10px;
         }
 
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 20px 15px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 5px;
         }
 
         .header p {
             opacity: 0.9;
-            font-size: 1.1em;
+            font-size: 0.95em;
         }
 
         .scoreboard {
             display: flex;
             justify-content: space-around;
-            padding: 20px;
+            padding: 15px;
             background: #f8f9fa;
             border-bottom: 2px solid #e9ecef;
         }
@@ -60,34 +62,34 @@
         }
 
         .score-label {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #6c757d;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .score-value {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #667eea;
         }
 
         .game-area {
-            padding: 40px;
+            padding: 20px 15px;
         }
 
         .headline-card {
             background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
             border-left: 5px solid #667eea;
         }
 
         .headline-text {
-            font-size: 1.3em;
-            line-height: 1.6;
+            font-size: 1.15em;
+            line-height: 1.5;
             color: #2d3748;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .category-badge {
@@ -102,14 +104,14 @@
 
         .button-group {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .vote-btn {
             flex: 1;
-            padding: 20px;
-            font-size: 1.2em;
+            padding: 18px;
+            font-size: 1.1em;
             font-weight: bold;
             border: none;
             border-radius: 10px;
@@ -146,8 +148,8 @@
         }
 
         .result-area {
-            margin-top: 20px;
-            padding: 20px;
+            margin-top: 15px;
+            padding: 15px;
             border-radius: 10px;
             display: none;
         }
@@ -167,26 +169,32 @@
         }
 
         .result-title {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             margin-bottom: 10px;
         }
 
         .result-explanation {
-            line-height: 1.6;
-            margin-bottom: 15px;
+            line-height: 1.5;
+            margin-bottom: 10px;
         }
 
         .sources {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
             margin-top: 10px;
+            display: none;
+        }
+
+        .sources.show {
+            display: block;
         }
 
         .sources h4 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #667eea;
+            font-size: 0.95em;
         }
 
         .source-link {
@@ -195,23 +203,49 @@
             text-decoration: none;
             padding: 5px 0;
             word-break: break-all;
+            font-size: 0.9em;
         }
 
         .source-link:hover {
             text-decoration: underline;
         }
 
-        .next-btn {
-            width: 100%;
-            padding: 15px;
+        .view-sources-btn {
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .view-sources-btn:hover {
+            background: #5568d3;
+        }
+
+        .next-btn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            padding: 18px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0;
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .next-btn.show {
+            display: block;
         }
 
         .next-btn:hover {
@@ -274,11 +308,13 @@
                 <div class="result-area" id="resultArea">
                     <div class="result-title" id="resultTitle"></div>
                     <div class="result-explanation" id="resultExplanation"></div>
+                    <button class="view-sources-btn" id="viewSourcesBtn" onclick="toggleSources()">🔍 View Sources</button>
                     <div class="sources" id="sources"></div>
-                    <button class="next-btn" onclick="nextRound()">Next Headline →</button>
                 </div>
             </div>
         </div>
+
+        <button class="next-btn" id="nextBtn" onclick="nextRound()">Next Headline →</button>
     </div>
 
     <script>
@@ -286,6 +322,13 @@
         let score = 0;
         let currentHeadline = null;
         let hasVoted = false;
+
+        function toggleSources() {
+            const sources = document.getElementById('sources');
+            const btn = document.getElementById('viewSourcesBtn');
+            sources.classList.toggle('show');
+            btn.textContent = sources.classList.contains('show') ? '🔼 Hide Sources' : '🔍 View Sources';
+        }
 
         const headlines = [
             {
@@ -382,6 +425,9 @@
             document.getElementById('resultArea').classList.remove('show', 'correct', 'incorrect');
             document.getElementById('realBtn').disabled = false;
             document.getElementById('fakeBtn').disabled = false;
+            document.getElementById('nextBtn').classList.remove('show');
+            document.getElementById('sources').classList.remove('show');
+            document.getElementById('viewSourcesBtn').textContent = '🔍 View Sources';
             hasVoted = false;
         }
 
@@ -423,6 +469,7 @@
             `;
 
             resultArea.classList.add('show');
+            document.getElementById('nextBtn').classList.add('show');
         }
 
         function nextRound() {
