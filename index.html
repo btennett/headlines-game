@@ -269,6 +269,50 @@
             margin: 20px auto;
         }
 
+        .game-over {
+            text-align: center;
+            padding: 30px 20px;
+            display: none;
+        }
+
+        .game-over.show {
+            display: block;
+        }
+
+        .game-over h2 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #48bb78;
+            margin: 20px 0;
+        }
+
+        .score-message {
+            font-size: 1.2em;
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+
+        .play-again-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .play-again-btn:hover {
+            background: #5568d3;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -312,6 +356,13 @@
                     <div class="sources" id="sources"></div>
                 </div>
             </div>
+
+            <div class="game-over" id="gameOver">
+                <h2>🎉 Game Complete!</h2>
+                <div class="final-score" id="finalScore">0/100</div>
+                <div class="score-message" id="scoreMessage"></div>
+                <button class="play-again-btn" onclick="playAgain()">🔄 Play Again</button>
+            </div>
         </div>
 
         <button class="next-btn" id="nextBtn" onclick="nextRound()">Next Headline →</button>
@@ -322,6 +373,8 @@
         let score = 0;
         let currentHeadline = null;
         let hasVoted = false;
+        let usedHeadlines = [];
+        const TOTAL_QUESTIONS = 10;
 
         function toggleSources() {
             const sources = document.getElementById('sources');
@@ -403,19 +456,25 @@
             }
         ];
 
-        let usedHeadlines = [];
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let shuffledHeadlines = shuffleArray(headlines);
 
         function getRandomHeadline() {
-            if (usedHeadlines.length === headlines.length) {
-                usedHeadlines = [];
+            if (usedHeadlines.length >= TOTAL_QUESTIONS) {
+                return null;
             }
             
-            let availableHeadlines = headlines.filter((_, index) => !usedHeadlines.includes(index));
-            let randomIndex = Math.floor(Math.random() * availableHeadlines.length);
-            let selectedHeadline = availableHeadlines[randomIndex];
-            
-            usedHeadlines.push(headlines.indexOf(selectedHeadline));
-            return selectedHeadline;
+            let headline = shuffledHeadlines[usedHeadlines.length];
+            usedHeadlines.push(headline);
+            return headline;
         }
 
         function loadHeadline() {
@@ -444,7 +503,7 @@
             const resultExplanation = document.getElementById('resultExplanation');
 
             if (isCorrect) {
-                score += 10;
+                score += 1;
                 resultArea.classList.add('correct');
                 resultTitle.textContent = '🎉 Correct!';
             } else {
@@ -473,8 +532,46 @@
         }
 
         function nextRound() {
+            if (currentRound >= TOTAL_QUESTIONS) {
+                showGameOver();
+                return;
+            }
+            
             currentRound++;
             document.getElementById('round').textContent = currentRound;
+            loadHeadline();
+        }
+
+        function showGameOver() {
+            document.getElementById('gameContent').style.display = 'none';
+            document.getElementById('gameOver').classList.add('show');
+            document.getElementById('nextBtn').classList.remove('show');
+            document.getElementById('finalScore').textContent = score + '/10';
+            
+            let message = '';
+            if (score >= 9) {
+                message = '🏆 Perfect! You\'re a fact-checking master!';
+            } else if (score >= 7) {
+                message = '🎯 Great job! You spotted most of the fakes!';
+            } else if (score >= 5) {
+                message = '👍 Not bad! Keep practicing your detection skills!';
+            } else {
+                message = '🤔 Tricky, wasn\'t it? Try again and improve your score!';
+            }
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function playAgain() {
+            currentRound = 1;
+            score = 0;
+            usedHeadlines = [];
+            shuffledHeadlines = shuffleArray(headlines);
+            
+            document.getElementById('round').textContent = currentRound;
+            document.getElementById('score').textContent = score;
+            document.getElementById('gameContent').style.display = 'block';
+            document.getElementById('gameOver').classList.remove('show');
+            
             loadHeadline();
         }
 
