@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Headlines or Hallucinations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .game-area {
+            padding: 40px;
+        }
+
+        .headline-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .headline-text {
+            font-size: 1.3em;
+            line-height: 1.6;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .vote-btn {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .real-btn {
+            background: #48bb78;
+            color: white;
+        }
+
+        .real-btn:hover:not(:disabled) {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .fake-btn {
+            background: #f56565;
+            color: white;
+        }
+
+        .fake-btn:hover:not(:disabled) {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .result-area.correct {
+            background: #c6f6d5;
+            border-left: 5px solid #48bb78;
+        }
+
+        .result-area.incorrect {
+            background: #fed7d7;
+            border-left: 5px solid #f56565;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-explanation {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .sources {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .sources h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .source-link {
+            display: block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 5px 0;
+            word-break: break-all;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .next-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📰 Headlines or Hallucinations?</h1>
+            <p>Can you spot the fake news from reality?</p>
+        </div>
+
+        <div class="scoreboard">
+            <div class="score-item">
+                <div class="score-label">Round</div>
+                <div class="score-value" id="round">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Score</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Streak</div>
+                <div class="score-value" id="streak">0</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div id="gameContent">
+                <div class="headline-card">
+                    <span class="category-badge" id="category">Tech</span>
+                    <div class="headline-text" id="headline">Loading headline...</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="vote-btn real-btn" id="realBtn" onclick="vote('real')">✓ Real</button>
+                    <button class="vote-btn fake-btn" id="fakeBtn" onclick="vote('fake')">✗ Fake</button>
+                </div>
+
+                <div class="result-area" id="resultArea">
+                    <div class="result-title" id="resultTitle"></div>
+                    <div class="result-explanation" id="resultExplanation"></div>
+                    <div class="sources" id="sources"></div>
+                    <button class="next-btn" onclick="nextRound()">Next Headline →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRound = 1;
+        let score = 0;
+        let streak = 0;
+        let currentHeadline = null;
+        let hasVoted = false;
+
+        const headlines = [
+            {
+                text: "Zoom Announces 'AI Clone' Feature That Attends Meetings For You, Takes Notes, and Responds to Basic Questions",
+                category: "Tech",
+                answer: "real",
+                explanation: "This feature was actually announced by Zoom in late 2024 as part of their AI Companion suite. It allows users to send an AI avatar to meetings.",
+                searchQuery: "Zoom AI clone feature 2024"
+            },
+            {
+                text: "McDonald's Ends Two-Year AI Drive-Thru Partnership With IBM After System Repeatedly Adds Bacon to Ice Cream Orders",
+                category: "Business",
+                answer: "real",
+                explanation: "McDonald's did end their AI drive-thru partnership in 2024, though the bacon-on-ice-cream incidents were reported anecdotally. The system had multiple ordering errors.",
+                searchQuery: "McDonald's ends IBM AI drive thru 2024"
+            },
+            {
+                text: "Meta Releases 'Threads Premium' Subscription Offering Verified Badge and AI Assistant That Pre-Writes Replies Based on Your Post History",
+                category: "Tech",
+                answer: "fake",
+                explanation: "While Meta has explored various subscription features, this specific combination of features for Threads has not been announced. It's plausible but fabricated.",
+                searchQuery: "Meta Threads Premium subscription AI replies"
+            },
+            {
+                text: "Pope Francis Releases Hip-Hop Album Featuring Vocal Samples in Latin",
+                category: "Entertainment",
+                answer: "fake",
+                explanation: "This never happened, though the Pope has been involved in various modern media initiatives. This would be too unusual even for his progressive approach.",
+                searchQuery: "Pope Francis hip hop album latin"
+            },
+            {
+                text: "Tesla Recalls 2 Million Vehicles Over Autopilot Safety Concerns Following Crashes With Emergency Vehicles",
+                category: "Business",
+                answer: "real",
+                explanation: "Tesla issued a major recall in late 2023 affecting over 2 million vehicles due to Autopilot safety issues, particularly involving emergency vehicles.",
+                searchQuery: "Tesla recall 2 million autopilot 2023"
+            },
+            {
+                text: "Spotify CEO Defends AI-Generated Music Library, Says 'Listeners Can't Tell the Difference and Artists Should Adapt'",
+                category: "Tech",
+                answer: "fake",
+                explanation: "While Spotify has introduced AI features and had conflicts with artists, the CEO never made this specific inflammatory statement. This is invented controversy.",
+                searchQuery: "Spotify CEO AI generated music artists should adapt"
+            },
+            {
+                text: "California City Council Votes to Replace All Stop Signs With AI-Powered Traffic Signals That Adapt to Pedestrian Emotions",
+                category: "Politics",
+                answer: "fake",
+                explanation: "No city has implemented emotion-detecting traffic signals. While AI traffic management exists, this specific implementation is absurdist fiction.",
+                searchQuery: "California AI traffic signals pedestrian emotions"
+            },
+            {
+                text: "OpenAI Temporarily Bans Competing AI Company From Using ChatGPT API After Detecting Training of Rival Model",
+                category: "Tech",
+                answer: "real",
+                explanation: "There were reports in 2024 of OpenAI restricting API access to companies suspected of using it to train competing models, sparking debates about fair use.",
+                searchQuery: "OpenAI bans competitor API training 2024"
+            }
+        ];
+
+        let usedHeadlines = [];
+
+        function getRandomHeadline() {
+            if (usedHeadlines.length === headlines.length) {
+                usedHeadlines = [];
+            }
+            
+            let availableHeadlines = headlines.filter((_, index) => !usedHeadlines.includes(index));
+            let randomIndex = Math.floor(Math.random() * availableHeadlines.length);
+            let selectedHeadline = availableHeadlines[randomIndex];
+            
+            usedHeadlines.push(headlines.indexOf(selectedHeadline));
+            return selectedHeadline;
+        }
+
+        function loadHeadline() {
+            currentHeadline = getRandomHeadline();
+            document.getElementById('headline').textContent = currentHeadline.text;
+            document.getElementById('category').textContent = currentHeadline.category;
+            document.getElementById('resultArea').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('realBtn').disabled = false;
+            document.getElementById('fakeBtn').disabled = false;
+            hasVoted = false;
+        }
+
+        async function vote(choice) {
+            if (hasVoted) return;
+            hasVoted = true;
+
+            document.getElementById('realBtn').disabled = true;
+            document.getElementById('fakeBtn').disabled = true;
+
+            const isCorrect = choice === currentHeadline.answer;
+            const resultArea = document.getElementById('resultArea');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultExplanation = document.getElementById('resultExplanation');
+
+            if (isCorrect) {
+                score += 10;
+                streak++;
+                resultArea.classList.add('correct');
+                resultTitle.textContent = '🎉 Correct!';
+                if (streak >= 3) {
+                    score += 5;
+                    resultTitle.textContent += ' +5 Streak Bonus!';
+                }
+            } else {
+                streak = 0;
+                resultArea.classList.add('incorrect');
+                resultTitle.textContent = '❌ Wrong!';
+            }
+
+            resultExplanation.textContent = currentHeadline.explanation;
+
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+
+            // Show sources section with search suggestion
+            const sourcesDiv = document.getElementById('sources');
+            sourcesDiv.innerHTML = `
+                <h4>🔍 Verify This Yourself:</h4>
+                <p style="margin-bottom: 10px;">Search for: <strong>"${currentHeadline.searchQuery}"</strong></p>
+                <a href="https://www.google.com/search?q=${encodeURIComponent(currentHeadline.searchQuery)}" 
+                   target="_blank" 
+                   class="source-link">
+                   → Search on Google
+                </a>
+            `;
+
+            resultArea.classList.add('show');
+        }
+
+        function nextRound() {
+            currentRound++;
+            document.getElementById('round').textContent = currentRound;
+            loadHeadline();
+        }
+
+        // Initialize game
+        loadHeadline();
+    </script>
+</body>
+</html>
